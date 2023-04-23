@@ -1,0 +1,3 @@
+Terminal States reached: 10
+Steps   per terminal state: [881, 932, 881, 895, 905, 935, 813, 763, 957, 842]
+Rewards per terminal state: [-433, -473, -422, -423, -455, -476, -342, -284, -508, -374]

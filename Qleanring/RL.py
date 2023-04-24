@@ -177,7 +177,7 @@ class Qlearning:
                 return -2
             return -1
 
-    def getPickUpIndex(self):  # returns an index to access the array in the notHolding values
+    def PickupIndex(self):  # returns an index to access the array in the notHolding values
         pickUp1, pickUp2 = self.pickUpCells  # positions
         indx1 , indx2 = self.pickUpCells.index(pickUp1) ,self.pickUpCells.index(pickUp2)
         pickUp1, pickUp2 = self.world.pickup_items[indx1], self.world.pickup_items[indx2]  # tokens left in each (used as bools)
@@ -191,7 +191,7 @@ class Qlearning:
             else:
                 return 0
 
-    def getDropOffIndex(self): 
+    def DroppingIndex(self): 
         dropOff1, dropOff2, dropOff3, dropOff4 = self.dropOffCells  # positions
         dropOff1, dropOff2, dropOff3, dropOff4 = self.world.dropoff_capacity[self.world.Dropoff_cell.index((dropOff1))] < 5, self.world.dropoff_capacity[self.world.Dropoff_cell.index((dropOff2))] < 5, self.world.dropoff_capacity[self.world.Dropoff_cell.index((dropOff3))] < 5, self.world.dropoff_capacity[self.world.Dropoff_cell.index((dropOff4))] < 5  # bools represent whether they can take more
         if not (dropOff1 or dropOff2 or dropOff3 or dropOff4):  # if all are full
@@ -271,10 +271,10 @@ class Qlearning:
             if male:
                 reward = self.getRewards(self.malePos, holding)
                 self.RewardsMalePerStep.append(reward)  # adding rewards for male
-                oldPos = self.malePos
+                OldLocation = self.malePos
                 if NextAction[i] == 'Dropoff' or NextAction[i] == 'Pickup':
                     i += 1
-                newPos = oldPos + self.ACTIONS[NextAction[i]]
+                newPos = OldLocation + self.ACTIONS[NextAction[i]]
                 # male's new position can't be the same as the female's position, while it is, recalculate
                 while ((newPos == self.femalePos).all() or
                         newPos[0] < 0 or newPos[0] > 2 or
@@ -284,18 +284,18 @@ class Qlearning:
                     self.blockCounts += 1
                     if NextAction[i] == 'Dropoff' or NextAction[i] == 'Pickup':
                         i += 1
-                    newPos = oldPos + self.ACTIONS[NextAction[i]]
-                self.MaleRewards.append([oldPos, NextAction[i], reward, holding, qTableIndex])
+                    newPos = OldLocation + self.ACTIONS[NextAction[i]]
+                self.MaleRewards.append([OldLocation, NextAction[i], reward, holding, qTableIndex])
                 self.malePos = newPos
                 self.world.sphere2.pos = vector(self.malePos[0]*(self.world.cube_size + self.world.cube_spacing),self.malePos[1]*(self.world.cube_size + self.world.cube_spacing),self.malePos[2]*(self.world.cube_size + self.world.cube_spacing))
                 sleep(1)
             else:
                 reward = self.getRewards(self.femalePos, holding)
                 self.RewardsFemalePerStep.append(reward)  # adding rewards female
-                oldPos = self.femalePos
+                OldLocation = self.femalePos
                 if NextAction[i] == 'Dropoff' or NextAction[i] == 'Pickup':
                     i += 1
-                newPos = oldPos + self.ACTIONS[NextAction[i]]
+                newPos = OldLocation + self.ACTIONS[NextAction[i]]
                 while((newPos == self.malePos).all() or
                         newPos[0] < 0 or newPos[0] > 2 or
                         newPos[1] < 0 or newPos[1] > 2 or
@@ -305,8 +305,8 @@ class Qlearning:
                     self.blockCounts += 1
                     if NextAction[i] == 'Dropoff' or NextAction[i] == 'Pickup':
                         i += 1
-                    newPos = oldPos + self.ACTIONS[NextAction[i]]
-                self.Femalerewards.append([oldPos, NextAction[i], reward, holding, qTableIndex])
+                    newPos = OldLocation + self.ACTIONS[NextAction[i]]
+                self.Femalerewards.append([OldLocation, NextAction[i], reward, holding, qTableIndex])
                 self.femalePos = newPos
                 self.world.sphere1.pos = vector(self.femalePos[0]*(self.world.cube_size + self.world.cube_spacing),self.femalePos[1]* (self.world.cube_size + self.world.cube_spacing),self.femalePos[2]* (self.world.cube_size + self.world.cube_spacing))
                 sleep(1)
@@ -333,66 +333,65 @@ class Qlearning:
             self.pickUp(male, x,y,z, holding)
             nextDirection = 'Pickup'
             if not male:
-                self.Femalerewards.append([(x,y,z), 'Pickup', self.getRewards((x,y,z), holding), holding, self.getDropOffIndex() if holding else self.getPickUpIndex()])
+                self.Femalerewards.append([(x,y,z), 'Pickup', self.getRewards((x,y,z), holding), holding, self.DroppingIndex() if holding else self.PickupIndex()])
             else:
-                self.MaleRewards.append([(x,y,z), 'Pickup', self.getRewards((x,y,z), holding), holding, self.getDropOffIndex() if holding else self.getPickUpIndex()])
+                self.MaleRewards.append([(x,y,z), 'Pickup', self.getRewards((x,y,z), holding), holding, self.DroppingIndex() if holding else self.PickupIndex()])
         elif ((x,y,z)) in self.dropOffCells and self.world.dropoff_capacity[self.dropOffCells.index((x,y,z))] < 5  and ((male and self.MaleState) or (not male and self.FemaleState)):  # else if we can drop off then do so else if we can drop off then do so
             self.dropOff(male, x,y,z, holding)
             nextDirection = 'Dropoff'
             if not male:
-                self.Femalerewards.append([(x,y,z), 'Dropoff', self.getRewards((x,y,z), holding), holding, self.getDropOffIndex() if holding else self.getPickUpIndex()])
+                self.Femalerewards.append([(x,y,z), 'Dropoff', self.getRewards((x,y,z), holding), holding, self.DroppingIndex() if holding else self.PickupIndex()])
             else:
-                self.MaleRewards.append([(x,y,z), 'Dropoff', self.getRewards((x,y,z), holding), holding, self.getDropOffIndex() if holding else self.getPickUpIndex()])
+                self.MaleRewards.append([(x,y,z), 'Dropoff', self.getRewards((x,y,z), holding), holding, self.DroppingIndex() if holding else self.PickupIndex()])
             
         else:  # else make a move
             if policy == "PRANDOM":
                 NextAction = random.sample(list(self.qTable[(x,y,z)].keys()) if male else list(self.qTable_[(x,y,z)].keys()),
                     len(self.qTable[(x,y,z)]) if male else len(self.qTable_[(x,y,z)]))  # directions ordered randomly
-                nextDirection= self.NextStep(male, NextAction, holding, self.getDropOffIndex() if holding else self.getPickUpIndex())
+                nextDirection= self.NextStep(male, NextAction, holding, self.DroppingIndex() if holding else self.PickupIndex())
             elif policy == "PGREEDY":
                 NextAction = sorted(self.qTable[(x,y,z)] if male else self.qTable_[(x,y,z)] , key=lambda i: self.qTable[(x,y,z)][i][holding][
-                    self.getDropOffIndex() if holding else self.getPickUpIndex()] if male else self.qTable_[(x,y,z)][i][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()],
+                    self.DroppingIndex() if holding else self.PickupIndex()] if male else self.qTable_[(x,y,z)][i][holding][self.DroppingIndex() if holding else self.PickupIndex()],
                         reverse=True)  # directions ordered best to worst
-                nextDirection= self.NextStep(male, NextAction, holding, self.getDropOffIndex() if holding else self.getPickUpIndex())
+                nextDirection= self.NextStep(male, NextAction, holding, self.DroppingIndex() if holding else self.PickupIndex())
 
             elif policy == "PEXPLOIT":
                 decideWhich = np.random.uniform()
                 if decideWhich < 0.8:
                     NextAction = sorted(self.qTable[(x,y,z)] if male else self.qTable_[(x,y,z)],
-                        key=lambda i: self.qTable[(x,y,z)][i][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()] if male else
-                        self.qTable_[(x,y,z)][i][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()], reverse=True)  # directions ordered best to worst
-                    nextDirection = self.NextStep(male, NextAction, holding, self.getDropOffIndex() if holding else self.getPickUpIndex())
+                        key=lambda i: self.qTable[(x,y,z)][i][holding][self.DroppingIndex() if holding else self.PickupIndex()] if male else
+                        self.qTable_[(x,y,z)][i][holding][self.DroppingIndex() if holding else self.PickupIndex()], reverse=True)  # directions ordered best to worst
+                    nextDirection = self.NextStep(male, NextAction, holding, self.DroppingIndex() if holding else self.PickupIndex())
                 else:
                     NextAction = random.sample(list(self.qTable[(x,y,z)].keys()) if male else list(self.qTable_[(x,y,z)].keys()),
                         len(self.qTable[(x,y,z)]) if male else len(self.qTable_[(x,y,z)]))  # directions ordered randomly
-                    nextDirection = self.NextStep(male, NextAction, holding, self.getDropOffIndex() if holding else self.getPickUpIndex())
+                    nextDirection = self.NextStep(male, NextAction, holding, self.DroppingIndex() if holding else self.PickupIndex())
             else:
                 print("Incorrect specification of policy name. Should be 'PRANDOM', 'PGREEDY', or 'PEXPLOIT'")
         
-        oldPos = (x,y,z)  # curent position coordinates
-        curPos = tuple(self.malePos) if male else tuple(self.femalePos)  # next position coordinates
+        OldLocation = (x,y,z)  # curent position coordinates
+        NewLocation = tuple(self.malePos) if male else tuple(self.femalePos)  # next position coordinates
         state(self.femalePos[0],self.femalePos[1],self.femalePos[2],1 if self.FemaleState else 0, self.malePos[0],self.malePos[1],self.malePos[2],1 if self.MaleState else 0)
         Qtable = self.qTable if male else self.qTable_
-        self.updateQtable(curPos, oldPos, nextDirection, male, holding, step, Qtable)  # updating qTable
+        self.OtableUpdate(NewLocation, OldLocation, nextDirection, male, holding, step, Qtable)  # updating qTable
        
-    def updateQtable(self, nextpos, currPos, direction, male, holding, step, Qtable):  # update q table for every move regardless of agent FOR CURRENT POSITION
+    def OtableUpdate(self, newlocation, oldLocation, direction, male, holding, step, Qtable):  # update q table for every move regardless of agent FOR CURRENT POSITION
         if step >= 2 and self.SARSA:
             S, oldMove, oldReward, oldHolding, old_qTableIndex = self.MaleRewards[-1] if male else self.Femalerewards[-1]
             S = tuple(S)
             Qtable[S][oldMove][oldHolding][old_qTableIndex] += \
                 self.learning_rate * \
                     (oldReward + \
-                    self.discount_factor * Qtable[currPos][direction][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()] - \
+                    self.discount_factor * Qtable[oldLocation][direction][holding][self.DroppingIndex() if holding else self.PickupIndex()] - \
                     Qtable[S][oldMove][oldHolding][old_qTableIndex])
         else:
             # getting max q-value from next position
-            Qtable[currPos][direction][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()] += \
-                1-self.learning_rate * Qtable[currPos][direction][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()]+\
-                self.learning_rate * \
-                    (self.getRewards(currPos, holding) + \
-                    self.discount_factor * max([val[holding][self.getDropOffIndex() if holding else self.getPickUpIndex()] for val in Qtable[nextpos].values()]) -\
-                    Qtable[currPos][direction][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()])
-        print(currPos,direction,holding,self.getDropOffIndex() if holding else self.getPickUpIndex(),Qtable[currPos][direction][holding][self.getDropOffIndex() if holding else self.getPickUpIndex()])
+            Qtable[oldLocation][direction][holding][self.DroppingIndex() if holding else self.PickupIndex()] += \
+            self.learning_rate * \
+                (self.getRewards(oldLocation, holding) + \
+                self.discount_factor * max([val[holding][self.DroppingIndex() if holding else self.PickupIndex()] for val in Qtable[newlocation].values()]) -\
+                Qtable[oldLocation][direction][holding][self.DroppingIndex() if holding else self.PickupIndex()])
+        print(oldLocation,direction,holding,self.DroppingIndex() if holding else self.PickupIndex(),Qtable[oldLocation][direction][holding][self.DroppingIndex() if holding else self.PickupIndex()])
 
     def visualize_steps_per_terminal_state(self):
         y = self.stepsPerTerminalState

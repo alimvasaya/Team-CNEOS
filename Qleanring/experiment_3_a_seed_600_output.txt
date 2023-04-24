@@ -1,0 +1,3 @@
+Terminal States reached: 1
+Steps   per terminal state: [4302]
+Rewards per terminal state: [-4138]

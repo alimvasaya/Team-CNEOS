@@ -195,14 +195,16 @@ def main():
 
     one = PDWorld(num_cubes1, cube_size1, cube_spacing1, Pickup_cell1, Dropoff_cell1, pickup_items1, dropoff_capacity1, Risky_cell1, Starting_state)
     qtable1 = qtable()
-    
+    qtable2 = qtable()
+    qtable3 = qtable()
+    qtable4 = qtable()
     if experiment == 1 or experiment == 2 or experiment == 4:
         if experiment == 1:
             experiment1(experiment,subExperiment,algorithm, one, qtable1, seedC, learning_rate, Discount_rate)
         elif experiment == 2:
-            experiment2(experiment,subExperiment,algorithm, one, qtable1, seedC, learning_rate, Discount_rate)
+            experiment2(experiment,subExperiment,algorithm, one, qtable2, seedC, learning_rate, Discount_rate)
         elif experiment == 4:
-            experiment4(experiment,subExperiment,algorithm, one, qtable1, seedC, learning_rate, Discount_rate)
+            experiment4(experiment,subExperiment,algorithm, one, qtable3, seedC, learning_rate, Discount_rate)
     elif experiment == 3:
         if subExperiment == 'c':
             learning_rate = 0.3
@@ -213,7 +215,7 @@ def main():
         elif subExperiment == 'b':
             learning_rate = 0.5
             Discount_rate = 0.5
-        experiment3(experiment,subExperiment,algorithm, one, qtable1, seedC, learning_rate, Discount_rate)
+        experiment3(experiment,subExperiment,algorithm, one, qtable4, seedC, learning_rate, Discount_rate)
     else:
         print("Invalid experiment number.")
     exit()

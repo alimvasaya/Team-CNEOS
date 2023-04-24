@@ -7,6 +7,7 @@ Please download and install the following packages:
 
 numpy: pip install numpy
 vpython: pip install vpython v 3.1.1
+seaborn: pip install seaborn
 
 Running The program
 
